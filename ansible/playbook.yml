@@ -68,10 +68,6 @@
       tags: [context7]
       when: "'context7' in mcp_servers_enabled"
 
-    - role: xcodebuildmcp
-      tags: [xcodebuildmcp]
-      when: "'xcodebuildmcp' in mcp_servers_enabled"
-
     - role: cupertino
       tags: [cupertino]
       when: "'cupertino' in mcp_servers_enabled"
@@ -79,3 +75,7 @@
     - role: swiftlens
       tags: [swiftlens]
       when: "'swiftlens' in mcp_servers_enabled"
+
+    - role: xcodebuildmcp
+      tags: [xcodebuildmcp]
+      when: "'xcodebuildmcp' in mcp_servers_enabled"

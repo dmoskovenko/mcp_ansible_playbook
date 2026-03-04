@@ -1,6 +1,6 @@
 # Encrypt this file: ansible-vault encrypt group_vars/all/vault.yml
 # Then replace the placeholder below with your actual key.
 vault_exa_api_key: REPLACE_ME_THEN_ENCRYPT
-vault_context7_api_key: REPLACE_ME_THEN_ENCRYPT
 vault_firecrawl_api_key: REPLACE_ME_THEN_ENCRYPT
 vault_perplexity_api_key: REPLACE_ME_THEN_ENCRYPT
+vault_context7_api_key: REPLACE_ME_THEN_ENCRYPT

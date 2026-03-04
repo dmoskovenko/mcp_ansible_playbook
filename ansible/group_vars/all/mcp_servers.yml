@@ -6,9 +6,9 @@ mcp_servers_enabled:
   - perplexity
   - figma
   - context7
-  - xcodebuildmcp
   - cupertino
   - swiftlens
+  - xcodebuildmcp
 
 # Agent skills toggle
 skills_enabled: true
@@ -42,9 +42,6 @@ figma_transport: http
 # Context7 — npx-based server
 context7_npx_package: "@upstash/context7-mcp"
 
-# XcodeBuildMCP — npx-based server
-xcodebuildmcp_npx_package: xcodebuildmcp@latest
-
 # Cupertino — local Homebrew binary (stdio transport)
 cupertino_tap: mihaelamj/tap
 cupertino_formula: cupertino
@@ -53,3 +50,6 @@ cupertino_transport: stdio
 
 # SwiftLens — uvx-based server
 swiftlens_uvx_package: swiftlens
+
+# XcodeBuildMCP — npx-based server
+xcodebuildmcp_npx_package: xcodebuildmcp@latest
