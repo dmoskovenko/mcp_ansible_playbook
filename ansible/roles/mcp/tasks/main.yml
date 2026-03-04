@@ -1,0 +1,17 @@
+---
+- name: "Install {{ mcp_server.name }} via Homebrew"
+  ansible.builtin.include_tasks: install_homebrew.yml
+  when: mcp_server.homebrew is defined
+
+- name: "Register {{ mcp_server.name }} with Claude"
+  ansible.builtin.include_tasks: register_claude.yml
+  when: claude_cli_stat.stat.exists
+
+- name: "Register {{ mcp_server.name }} with Codex"
+  ansible.builtin.include_tasks: register_codex.yml
+  when:
+    - codex_cli_stat.stat.exists
+    - mcp_server.codex | default(true) | bool
+
+- name: "Verify {{ mcp_server.name }} registration"
+  ansible.builtin.include_tasks: verify.yml

@@ -1,11 +1,12 @@
 ---
 - name: Run install-skills.sh
   ansible.builtin.command:
-    cmd: "{{ playbook_dir }}/../install-skills.sh"
+    cmd: "{{ role_path }}/files/install-skills.sh"
   environment:
     SKILL_CLONE_ROOT: "{{ skills_clone_root }}"
     CLAUDE_SKILLS_DIR: "{{ skills_claude_dir }}"
     CODEX_SKILLS_DIR: "{{ skills_codex_dir }}"
+    SKILL_REPOS: "{{ skill_repos | join('\n') }}"
   register: install_script_result
   changed_when: >-
     'Cloning' in install_script_result.stdout or

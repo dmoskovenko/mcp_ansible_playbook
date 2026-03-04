@@ -48,34 +48,48 @@
       tags: [skills]
       when: skills_enabled | default(true) | bool
 
-    - role: exa
-      tags: [exa]
+    - role: mcp
+      tags: [exa, mcp]
+      vars: { mcp_server: "{{ mcp_servers.exa }}" }
       when: "'exa' in mcp_servers_enabled"
 
-    - role: firecrawl
-      tags: [firecrawl]
+    - role: mcp
+      tags: [firecrawl, mcp]
+      vars: { mcp_server: "{{ mcp_servers.firecrawl }}" }
       when: "'firecrawl' in mcp_servers_enabled"
 
-    - role: perplexity
-      tags: [perplexity]
+    - role: mcp
+      tags: [perplexity, mcp]
+      vars: { mcp_server: "{{ mcp_servers.perplexity }}" }
       when: "'perplexity' in mcp_servers_enabled"
 
-    - role: figma
-      tags: [figma]
+    - role: mcp
+      tags: [figma, mcp]
+      vars: { mcp_server: "{{ mcp_servers.figma }}" }
       when: "'figma' in mcp_servers_enabled"
 
-    - role: context7
-      tags: [context7]
+    - role: mcp
+      tags: [context7, mcp]
+      vars: { mcp_server: "{{ mcp_servers.context7 }}" }
       when: "'context7' in mcp_servers_enabled"
 
-    - role: cupertino
-      tags: [cupertino]
+    - role: mcp
+      tags: [cupertino, mcp]
+      vars: { mcp_server: "{{ mcp_servers.cupertino }}" }
       when: "'cupertino' in mcp_servers_enabled"
 
-    - role: swiftlens
-      tags: [swiftlens]
+    - role: mcp
+      tags: [swiftlens, mcp]
+      vars: { mcp_server: "{{ mcp_servers.swiftlens }}" }
       when: "'swiftlens' in mcp_servers_enabled"
 
-    - role: xcodebuildmcp
-      tags: [xcodebuildmcp]
+    - role: mcp
+      tags: [xcodebuildmcp, mcp]
+      vars: { mcp_server: "{{ mcp_servers.xcodebuildmcp }}" }
       when: "'xcodebuildmcp' in mcp_servers_enabled"
+
+  post_tasks:
+    - name: Show registered MCP servers summary
+      ansible.builtin.debug:
+        msg: "MCP servers registered: {{ mcp_servers_enabled | join(', ') }}"
+      tags: [always]

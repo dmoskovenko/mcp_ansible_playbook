@@ -1,0 +1,13 @@
+---
+- name: "Register {{ mcp_server.name }} MCP server with Codex"
+  ansible.builtin.command:
+    argv: >-
+      {{
+        [codex_cli_path, 'mcp', 'add', mcp_server.name]
+        + (['--env', mcp_server.env.key + '=' + mcp_server.env.value] if mcp_server.env is defined else [])
+        + ['--']
+        + mcp_server.command
+        + (mcp_server.codex_extra_args | default([]))
+      }}
+  changed_when: false
+  no_log: "{{ mcp_server.env is defined }}"

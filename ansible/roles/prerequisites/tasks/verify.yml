@@ -22,14 +22,9 @@
 - name: Verify npx is available
   ansible.builtin.command: npx --version
   changed_when: false
-  when: >-
-    'exa' in mcp_servers_enabled or
-    'firecrawl' in mcp_servers_enabled or
-    'perplexity' in mcp_servers_enabled or
-    'context7' in mcp_servers_enabled or
-    'xcodebuildmcp' in mcp_servers_enabled
+  when: mcp_servers_enabled | map('extract', mcp_servers) | selectattr('runner', 'eq', 'npx') | list | length > 0
 
 - name: Verify uvx is available
   ansible.builtin.command: uvx --version
   changed_when: false
-  when: "'swiftlens' in mcp_servers_enabled"
+  when: mcp_servers_enabled | map('extract', mcp_servers) | selectattr('runner', 'eq', 'uvx') | list | length > 0

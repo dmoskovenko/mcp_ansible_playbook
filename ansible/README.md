@@ -11,7 +11,13 @@ Ansible playbook that installs and registers MCP servers (Cupertino, Exa, XcodeB
   ansible-galaxy collection install community.general
   ```
 
-The playbook installs Homebrew, Node.js, Claude Code, and Codex automatically — on a fresh Mac only Ansible itself is needed. uv is installed automatically when SwiftLens is enabled.
+The playbook installs Homebrew, Node.js, Claude Code, and Codex automatically — on a fresh Mac only Ansible itself is needed. uv is installed automatically when any uvx-based server is enabled.
+
+## Architecture
+
+All MCP servers are defined as structured entries in `group_vars/all/mcp_servers.yml`. A single parameterized `mcp` role handles installation, registration with both CLIs, and verification for every server type (npx, uvx, binary, http). Adding a new server requires only a new entry in the config dict and an entry in `playbook.yml` — no new role files.
+
+Skill repositories are also configured in the same vars file and passed to the shell scripts via the `SKILL_REPOS` environment variable.
 
 ## Vault Setup
 
@@ -60,16 +66,15 @@ ansible-playbook -i inventory/localhost.yml playbook.yml --ask-vault-pass
 ansible-playbook -i inventory/localhost.yml playbook.yml --vault-password-file .vault_pass
 ```
 
-**Run a single role via tags:**
+**Run a single server via tags:**
 ```bash
 ansible-playbook -i inventory/localhost.yml playbook.yml --tags cupertino --ask-vault-pass
 ansible-playbook -i inventory/localhost.yml playbook.yml --tags exa --ask-vault-pass
-ansible-playbook -i inventory/localhost.yml playbook.yml --tags xcodebuildmcp --ask-vault-pass
-ansible-playbook -i inventory/localhost.yml playbook.yml --tags context7 --ask-vault-pass
-ansible-playbook -i inventory/localhost.yml playbook.yml --tags swiftlens --ask-vault-pass
-ansible-playbook -i inventory/localhost.yml playbook.yml --tags figma
-ansible-playbook -i inventory/localhost.yml playbook.yml --tags firecrawl --ask-vault-pass
-ansible-playbook -i inventory/localhost.yml playbook.yml --tags perplexity --ask-vault-pass
+```
+
+**Run all MCP servers (skip skills):**
+```bash
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags mcp --ask-vault-pass
 ```
 
 ## Toggling Servers
@@ -79,7 +84,7 @@ Edit `group_vars/all/mcp_servers.yml` and adjust `mcp_servers_enabled`:
 ```yaml
 mcp_servers_enabled:
   - cupertino
-  # - exa            # commented out = skipped
+  - exa
   - xcodebuildmcp
   - context7
   - swiftlens
@@ -88,9 +93,11 @@ mcp_servers_enabled:
   - perplexity
 ```
 
+Node.js and uv prerequisites are installed automatically based on which server runners (npx/uvx) are enabled.
+
 ## Skills
 
-The `skills` role is a thin wrapper that delegates to the root-level `install-skills.sh` and `uninstall-skills.sh` bash scripts, which clone external skill repositories, discover directories containing `SKILL.md` files, and create symlinks into `~/.claude/skills/` and `~/.codex/skills/`.
+The `skills` role delegates to `install-skills.sh` and `uninstall-skills.sh` in `roles/skills/files/`. Skill repositories are defined in `group_vars/all/mcp_servers.yml` under `skill_repos` and passed to the scripts via the `SKILL_REPOS` environment variable.
 
 **Install skills only:**
 ```bash
@@ -134,4 +141,4 @@ codex mcp get perplexity
 
 ## Idempotency
 
-Both `claude mcp add` and `codex mcp add` overwrite existing entries with the same name, so re-running the playbook is safe.
+Both `claude mcp add` and `codex mcp add` overwrite existing entries with the same name, so re-running the playbook is safe. Registration tasks report `ok` (not `changed`) since they are idempotent.

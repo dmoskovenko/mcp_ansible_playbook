@@ -13,12 +13,20 @@ mcp_servers_enabled:
 # Agent skills toggle
 skills_enabled: true
 
+# Skill repositories to clone and symlink
+skill_repos:
+  - git@github.com:AvdLee/Core-Data-Agent-Skill.git
+  - git@github.com:Dimillian/Skills.git
+  - git@github.com:AvdLee/Swift-Concurrency-Agent-Skill.git
+  - git@github.com:AvdLee/Swift-Testing-Agent-Skill.git
+  - git@github.com:AvdLee/SwiftUI-Agent-Skill.git
+  - git@github.com:glittercowboy/taches-cc-resources.git
+
 # CLI casks (installed by prerequisites role)
 claude_code_cask: claude-code
 codex_cask: codex
 
-# Exa — npx-based server
-exa_npx_package: exa-mcp-server
+# Exa tool whitelist (passed as --tools= to both CLIs)
 exa_tools:
   - web_search_exa
   - web_search_advanced_exa
@@ -29,27 +37,89 @@ exa_tools:
   - deep_researcher_start
   - deep_researcher_check
 
-# Firecrawl — npx-based server
-firecrawl_npx_package: firecrawl-mcp
+# Structured MCP server definitions
+# Each entry supports: runner (npx/uvx/binary/http), env, command,
+# transport, homebrew, codex (bool), claude_extra_args, codex_extra_args
+mcp_servers:
+  exa:
+    name: exa
+    runner: npx
+    env:
+      key: EXA_API_KEY
+      value: "{{ vault_exa_api_key }}"
+    command:
+      - npx
+      - -y
+      - exa-mcp-server
+    claude_extra_args:
+      - "--tools={{ exa_tools | join(',') }}"
+    codex_extra_args:
+      - "--tools={{ exa_tools | join(',') }}"
 
-# Perplexity — npx-based server
-perplexity_npx_package: "@perplexity-ai/mcp-server"
+  firecrawl:
+    name: firecrawl
+    runner: npx
+    env:
+      key: FIRECRAWL_API_KEY
+      value: "{{ vault_firecrawl_api_key }}"
+    command:
+      - npx
+      - -y
+      - firecrawl-mcp
 
-# Figma — remote HTTP server (OAuth auth)
-figma_server_url: "https://mcp.figma.com/mcp"
-figma_transport: http
+  perplexity:
+    name: perplexity
+    runner: npx
+    env:
+      key: PERPLEXITY_API_KEY
+      value: "{{ vault_perplexity_api_key }}"
+    command:
+      - npx
+      - -y
+      - "@perplexity-ai/mcp-server"
 
-# Context7 — npx-based server
-context7_npx_package: "@upstash/context7-mcp"
+  figma:
+    name: figma
+    runner: http
+    transport: http
+    url: "https://mcp.figma.com/mcp"
+    codex: false
 
-# Cupertino — local Homebrew binary (stdio transport)
-cupertino_tap: mihaelamj/tap
-cupertino_formula: cupertino
-cupertino_binary: cupertino
-cupertino_transport: stdio
+  context7:
+    name: context7
+    runner: npx
+    env:
+      key: CONTEXT7_API_KEY
+      value: "{{ vault_context7_api_key }}"
+    command:
+      - npx
+      - -y
+      - "@upstash/context7-mcp"
 
-# SwiftLens — uvx-based server
-swiftlens_uvx_package: swiftlens
+  cupertino:
+    name: cupertino
+    runner: binary
+    transport: stdio
+    homebrew:
+      tap: mihaelamj/tap
+      formula: cupertino
+      binary: cupertino
+    command:
+      - "{{ homebrew_prefix }}/bin/cupertino"
 
-# XcodeBuildMCP — npx-based server
-xcodebuildmcp_npx_package: xcodebuildmcp@latest
+  swiftlens:
+    name: swiftlens
+    runner: uvx
+    transport: stdio
+    command:
+      - uvx
+      - swiftlens
+
+  xcodebuildmcp:
+    name: xcodebuildmcp
+    runner: npx
+    command:
+      - npx
+      - -y
+      - xcodebuildmcp@latest
+      - mcp

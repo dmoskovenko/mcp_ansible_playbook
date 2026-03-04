@@ -3,12 +3,7 @@
   community.general.homebrew:
     name: node
     state: present
-  when: >-
-    'exa' in mcp_servers_enabled or
-    'firecrawl' in mcp_servers_enabled or
-    'perplexity' in mcp_servers_enabled or
-    'context7' in mcp_servers_enabled or
-    'xcodebuildmcp' in mcp_servers_enabled
+  when: mcp_servers_enabled | map('extract', mcp_servers) | selectattr('runner', 'eq', 'npx') | list | length > 0
 
 - name: Install Claude Code via Homebrew cask
   community.general.homebrew_cask:
@@ -20,8 +15,8 @@
     name: "{{ codex_cask }}"
     state: present
 
-- name: Install uv via Homebrew (required for uvx / SwiftLens)
+- name: Install uv via Homebrew (required for uvx-based servers)
   community.general.homebrew:
     name: uv
     state: present
-  when: "'swiftlens' in mcp_servers_enabled"
+  when: mcp_servers_enabled | map('extract', mcp_servers) | selectattr('runner', 'eq', 'uvx') | list | length > 0

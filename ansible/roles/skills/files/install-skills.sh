@@ -5,14 +5,15 @@ readonly SKILL_CLONE_ROOT="${SKILL_CLONE_ROOT:-${XDG_DATA_HOME:-$HOME/.local/sha
 readonly CLAUDE_SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 readonly CODEX_SKILLS_DIR="${CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
 
-readonly REPOS=(
-  "git@github.com:AvdLee/Core-Data-Agent-Skill.git"
-  "git@github.com:Dimillian/Skills.git"
-  "git@github.com:AvdLee/Swift-Concurrency-Agent-Skill.git"
-  "git@github.com:AvdLee/Swift-Testing-Agent-Skill.git"
-  "git@github.com:AvdLee/SwiftUI-Agent-Skill.git"
-  "git@github.com:glittercowboy/taches-cc-resources.git"
-)
+[[ -n "${SKILL_REPOS:-}" ]] || { printf '[install-skills] ERROR: SKILL_REPOS env var is required\n' >&2; exit 1; }
+
+REPOS=()
+while IFS= read -r _repo; do
+  [[ -n "$_repo" ]] && REPOS+=("$_repo")
+done <<< "$SKILL_REPOS"
+readonly REPOS
+
+[[ ${#REPOS[@]} -gt 0 ]] || { printf '[install-skills] ERROR: SKILL_REPOS is empty\n' >&2; exit 1; }
 
 log() {
   printf '[install-skills] %s\n' "$*"
@@ -23,14 +24,22 @@ die() {
   exit 1
 }
 
+count_lines() {
+  wc -l < "$1" | tr -d '[:space:]'
+}
+
 usage() {
   cat <<'USAGE'
-Usage: ./install-skills.sh
+Usage: ./install-skills.sh [--dry-run]
 
 Clones/updates linked skill repositories, discovers all parent directories containing
 SKILL.md, and creates symlinks into:
   - ~/.claude/skills
   - ~/.codex/skills
+
+Options:
+  --dry-run   Print what would be done without making changes.
+  -h, --help  Show this help.
 
 Environment overrides:
   SKILL_CLONE_ROOT   (default: ${XDG_DATA_HOME:-$HOME/.local/share}/agent-skills/repos)
@@ -89,23 +98,36 @@ clone_or_update_repo() {
     if [[ "$current_origin" != "$repo_url" ]]; then
       if [[ "$(normalize_github_url "$current_origin")" == "$(normalize_github_url "$repo_url")" ]]; then
         log "Migrating remote origin for '$repo_name': $current_origin -> $repo_url"
-        git -C "$repo_path" remote set-url origin "$repo_url"
+        [[ "$DRY_RUN" == "1" ]] || git -C "$repo_path" remote set-url origin "$repo_url"
       else
         die "Origin mismatch for '$repo_path': expected '$repo_url', got '$current_origin'"
       fi
     fi
 
-    log "Updating $repo_url"
-    git -C "$repo_path" fetch --prune origin
-    git -C "$repo_path" pull --ff-only
+    if [[ "$DRY_RUN" == "1" ]]; then
+      log "DRY-RUN update: $repo_url"
+    else
+      log "Updating $repo_url"
+      git -C "$repo_path" fetch --prune origin
+      local branch
+      branch="$(git -C "$repo_path" rev-parse --abbrev-ref HEAD)"
+      if ! git -C "$repo_path" pull --ff-only 2>/dev/null; then
+        log "Fast-forward failed for '$repo_name' — resetting to origin/$branch"
+        git -C "$repo_path" reset --hard "origin/$branch"
+      fi
+    fi
     updated_repo_count=$((updated_repo_count + 1))
     return
   fi
 
   [[ ! -e "$repo_path" ]] || die "Path '$repo_path' exists but is not a git repository"
 
-  log "Cloning $repo_url"
-  git clone "$repo_url" "$repo_path"
+  if [[ "$DRY_RUN" == "1" ]]; then
+    log "DRY-RUN clone: $repo_url"
+  else
+    log "Cloning $repo_url"
+    git clone "$repo_url" "$repo_path"
+  fi
   cloned_count=$((cloned_count + 1))
 }
 
@@ -156,13 +178,13 @@ validate_no_duplicate_skill_names() {
     printf '  - %s\n' "$skill_name"
     awk -F '\t' -v name="$skill_name" '$1 == name { printf "      %s\n", $2 }' "$skills_tsv"
   done <<< "$duplicates"
-  exit 1
+  die "Duplicate skill names found — aborting"
 }
 
 build_unique_skill_files() {
   sort -t $'\t' -k1,1 "$skills_tsv" | awk -F '\t' '!seen[$1]++' > "$skills_unique_tsv"
   cut -f1 "$skills_unique_tsv" > "$skill_names_txt"
-  unique_skill_count="$(wc -l < "$skill_names_txt" | tr -d '[:space:]')"
+  unique_skill_count="$(count_lines "$skill_names_txt")"
 }
 
 validate_destination_conflicts() {
@@ -185,9 +207,9 @@ validate_destination_conflicts() {
 
   [[ ! -s "$conflicts_txt" ]] && return
 
-  log "Non-symlink paths already exist at destinations. Aborting:"
+  log "Non-symlink paths already exist at destinations:"
   sed 's#^#  - #' "$conflicts_txt"
-  exit 1
+  die "Destination conflicts found — aborting"
 }
 
 link_skills_for_target() {
@@ -204,11 +226,22 @@ link_skills_for_target() {
 
     dest="$target_dir/$skill_name"
     if [[ -L "$dest" ]]; then
-      rm -f "$dest"
-      ln -s "$source_dir" "$dest"
+      if [[ "$(readlink "$dest")" == "$source_dir" ]]; then
+        continue
+      fi
+      if [[ "$DRY_RUN" == "1" ]]; then
+        log "DRY-RUN update link: $dest -> $source_dir"
+      else
+        rm -f "$dest"
+        ln -s "$source_dir" "$dest"
+      fi
       updated=$((updated + 1))
     else
-      ln -s "$source_dir" "$dest"
+      if [[ "$DRY_RUN" == "1" ]]; then
+        log "DRY-RUN create link: $dest -> $source_dir"
+      else
+        ln -s "$source_dir" "$dest"
+      fi
       created=$((created + 1))
     fi
   done < "$skills_unique_tsv"
@@ -217,17 +250,32 @@ link_skills_for_target() {
 }
 
 print_summary() {
-  log "Done"
+  if [[ "$DRY_RUN" == "1" ]]; then
+    log "Dry-run complete"
+  else
+    log "Done"
+  fi
   log "Repositories: cloned=$cloned_count updated=$updated_repo_count total=${#REPOS[@]}"
   log "Skills discovered: total_SKILL_md=$skills_discovered unique_skill_dirs=$unique_skill_count"
   log "Links ($CLAUDE_SKILLS_DIR): created=$links_created_claude updated=$links_updated_claude"
   log "Links ($CODEX_SKILLS_DIR): created=$links_created_codex updated=$links_updated_codex"
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-  usage
-  exit 0
-fi
+DRY_RUN=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1 ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      die "Unknown argument: $1 (use --help)"
+      ;;
+  esac
+  shift
+done
 
 check_requirements
 init_workspace

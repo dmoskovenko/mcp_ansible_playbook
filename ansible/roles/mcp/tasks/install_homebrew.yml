@@ -1,0 +1,16 @@
+---
+- name: "Tap {{ mcp_server.homebrew.tap }} Homebrew repository"
+  community.general.homebrew_tap:
+    name: "{{ mcp_server.homebrew.tap }}"
+    state: present
+
+- name: "Install {{ mcp_server.homebrew.formula }} formula"
+  community.general.homebrew:
+    name: "{{ mcp_server.homebrew.formula }}"
+    state: present
+
+- name: "Verify {{ mcp_server.homebrew.binary }} binary exists"
+  ansible.builtin.stat:
+    path: "{{ homebrew_prefix }}/bin/{{ mcp_server.homebrew.binary }}"
+  register: homebrew_binary_stat
+  failed_when: not homebrew_binary_stat.stat.exists

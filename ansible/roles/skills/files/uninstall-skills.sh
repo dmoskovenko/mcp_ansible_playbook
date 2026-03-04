@@ -5,23 +5,20 @@ readonly SKILL_CLONE_ROOT="${SKILL_CLONE_ROOT:-${XDG_DATA_HOME:-$HOME/.local/sha
 readonly CLAUDE_SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 readonly CODEX_SKILLS_DIR="${CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
 
-readonly REPO_NAMES=(
-  "Core-Data-Agent-Skill"
-  "Skills"
-  "Swift-Concurrency-Agent-Skill"
-  "Swift-Testing-Agent-Skill"
-  "SwiftUI-Agent-Skill"
-  "taches-cc-resources"
-)
+[[ -n "${SKILL_REPOS:-}" ]] || { printf '[uninstall-skills] ERROR: SKILL_REPOS env var is required\n' >&2; exit 1; }
 
-readonly REPO_URLS=(
-  "git@github.com:AvdLee/Core-Data-Agent-Skill.git"
-  "git@github.com:Dimillian/Skills.git"
-  "git@github.com:AvdLee/Swift-Concurrency-Agent-Skill.git"
-  "git@github.com:AvdLee/Swift-Testing-Agent-Skill.git"
-  "git@github.com:AvdLee/SwiftUI-Agent-Skill.git"
-  "git@github.com:glittercowboy/taches-cc-resources.git"
-)
+REPO_URLS=()
+REPO_NAMES=()
+while IFS= read -r _repo; do
+  [[ -n "$_repo" ]] || continue
+  REPO_URLS+=("$_repo")
+  _name="${_repo##*/}"
+  REPO_NAMES+=("${_name%.git}")
+done <<< "$SKILL_REPOS"
+readonly REPO_URLS
+readonly REPO_NAMES
+
+[[ ${#REPO_URLS[@]} -gt 0 ]] || { printf '[uninstall-skills] ERROR: SKILL_REPOS is empty\n' >&2; exit 1; }
 
 log() {
   printf '[uninstall-skills] %s\n' "$*"
@@ -30,6 +27,10 @@ log() {
 die() {
   printf '[uninstall-skills] ERROR: %s\n' "$*" >&2
   exit 1
+}
+
+count_lines() {
+  wc -l < "$1" | tr -d '[:space:]'
 }
 
 usage() {
@@ -177,8 +178,8 @@ print_manifest() {
 
   symlink_count=0
   repo_count=0
-  [[ -s "$symlink_file" ]] && symlink_count="$(wc -l < "$symlink_file" | tr -d '[:space:]')"
-  [[ -s "$repo_file" ]] && repo_count="$(wc -l < "$repo_file" | tr -d '[:space:]')"
+  [[ -s "$symlink_file" ]] && symlink_count="$(count_lines "$symlink_file")"
+  [[ -s "$repo_file" ]] && repo_count="$(count_lines "$repo_file")"
 
   log "Manifest directory: $manifest_dir"
   log "Symlinks selected: $symlink_count"
@@ -288,8 +289,8 @@ collect_repo_removals "$selected_repos_txt"
 
 symlink_count=0
 repo_count=0
-[[ -s "$selected_symlinks_tsv" ]] && symlink_count="$(wc -l < "$selected_symlinks_tsv" | tr -d '[:space:]')"
-[[ -s "$selected_repos_txt" ]] && repo_count="$(wc -l < "$selected_repos_txt" | tr -d '[:space:]')"
+[[ -s "$selected_symlinks_tsv" ]] && symlink_count="$(count_lines "$selected_symlinks_tsv")"
+[[ -s "$selected_repos_txt" ]] && repo_count="$(count_lines "$selected_repos_txt")"
 
 print_manifest "$manifest_dir" "$selected_symlinks_tsv" "$selected_repos_txt"
 
