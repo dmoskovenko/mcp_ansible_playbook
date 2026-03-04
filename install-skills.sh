@@ -79,7 +79,7 @@ clone_or_update_repo() {
     [[ -n "$current_origin" ]] || die "Repository at '$repo_path' has no origin remote"
     [[ "$current_origin" == "$repo_url" ]] || die "Origin mismatch for '$repo_path': expected '$repo_url', got '$current_origin'"
 
-    log "Updating $repo_name"
+    log "Updating $repo_url"
     git -C "$repo_path" fetch --prune origin
     git -C "$repo_path" pull --ff-only
     updated_repo_count=$((updated_repo_count + 1))
@@ -88,7 +88,7 @@ clone_or_update_repo() {
 
   [[ ! -e "$repo_path" ]] || die "Path '$repo_path' exists but is not a git repository"
 
-  log "Cloning $repo_name"
+  log "Cloning $repo_url"
   git clone "$repo_url" "$repo_path"
   cloned_count=$((cloned_count + 1))
 }
@@ -97,6 +97,7 @@ clone_or_update_all_repos() {
   local repo_url
   for repo_url in "${REPOS[@]}"; do
     clone_or_update_repo "$repo_url"
+    printf '\n'
   done
 }
 
