@@ -1,0 +1,14 @@
+---
+- name: Register XcodeBuildMCP server with Codex
+  ansible.builtin.command:
+    argv:
+      - "{{ codex_cli_path }}"
+      - mcp
+      - add
+      - xcodebuildmcp
+      - --
+      - npx
+      - -y
+      - "{{ xcodebuildmcp_npx_package }}"
+      - mcp
+  changed_when: true

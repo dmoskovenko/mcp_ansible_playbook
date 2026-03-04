@@ -1,0 +1,33 @@
+---
+- name: Check Claude CLI exists
+  ansible.builtin.stat:
+    path: "{{ claude_cli_path }}"
+  register: claude_cli_stat
+
+- name: Check Codex CLI exists
+  ansible.builtin.stat:
+    path: "{{ codex_cli_path }}"
+  register: codex_cli_stat
+
+- name: Warn if Claude CLI is missing
+  ansible.builtin.debug:
+    msg: "Claude CLI not found at {{ claude_cli_path }} — skipping Claude registration tasks."
+  when: not claude_cli_stat.stat.exists
+
+- name: Warn if Codex CLI is missing
+  ansible.builtin.debug:
+    msg: "Codex CLI not found at {{ codex_cli_path }} — skipping Codex registration tasks."
+  when: not codex_cli_stat.stat.exists
+
+- name: Verify npx is available
+  ansible.builtin.command: npx --version
+  changed_when: false
+  when: >-
+    'exa' in mcp_servers_enabled or
+    'xcodebuildmcp' in mcp_servers_enabled or
+    'context7' in mcp_servers_enabled
+
+- name: Verify uvx is available
+  ansible.builtin.command: uvx --version
+  changed_when: false
+  when: "'swiftlens' in mcp_servers_enabled"

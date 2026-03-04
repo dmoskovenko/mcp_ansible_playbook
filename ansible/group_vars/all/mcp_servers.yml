@@ -1,0 +1,39 @@
+# MCP server configuration
+# Toggle which servers to install
+mcp_servers_enabled:
+  - cupertino
+  - exa
+  - xcodebuildmcp
+  - context7
+  - swiftlens
+
+# Cupertino — local Homebrew binary (stdio transport)
+cupertino_tap: mihaelamj/tap
+cupertino_formula: cupertino
+cupertino_binary: cupertino
+cupertino_transport: stdio
+
+# CLI casks (installed by prerequisites role)
+claude_code_cask: claude-code
+codex_cask: codex
+
+# Exa — npx-based server
+exa_npx_package: exa-mcp-server
+exa_tools:
+  - web_search_exa
+  - web_search_advanced_exa
+  - get_code_context_exa
+  - crawling_exa
+  - company_research_exa
+  - people_search_exa
+  - deep_researcher_start
+  - deep_researcher_check
+
+# XcodeBuildMCP — npx-based server
+xcodebuildmcp_npx_package: xcodebuildmcp@latest
+
+# Context7 — npx-based server
+context7_npx_package: "@upstash/context7-mcp"
+
+# SwiftLens — uvx-based server
+swiftlens_uvx_package: swiftlens

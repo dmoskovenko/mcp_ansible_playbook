@@ -1,0 +1,65 @@
+---
+- name: Install and register MCP servers for Claude Code and Codex
+  hosts: localhost
+  gather_facts: true
+
+  pre_tasks:
+    - name: Assert running on macOS
+      ansible.builtin.assert:
+        that: ansible_os_family == "Darwin"
+        fail_msg: "This playbook only supports macOS."
+
+    - name: Check for Homebrew (Apple Silicon path)
+      ansible.builtin.stat:
+        path: /opt/homebrew/bin/brew
+      register: brew_apple_silicon
+
+    - name: Check for Homebrew (Intel path)
+      ansible.builtin.stat:
+        path: /usr/local/bin/brew
+      register: brew_intel
+
+    - name: Install Homebrew if missing
+      ansible.builtin.shell: |
+        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      args:
+        creates: "{{ '/opt/homebrew/bin/brew' if ansible_machine == 'arm64' else '/usr/local/bin/brew' }}"
+      when: not brew_apple_silicon.stat.exists and not brew_intel.stat.exists
+
+    - name: Detect Homebrew prefix
+      ansible.builtin.command: brew --prefix
+      changed_when: false
+      register: brew_prefix_result
+
+    - name: Set Homebrew prefix fact
+      ansible.builtin.set_fact:
+        homebrew_prefix: "{{ brew_prefix_result.stdout }}"
+
+    - name: Set CLI path facts
+      ansible.builtin.set_fact:
+        claude_cli_path: "{{ homebrew_prefix }}/bin/claude"
+        codex_cli_path: "{{ homebrew_prefix }}/bin/codex"
+
+  roles:
+    - role: prerequisites
+      tags: [prerequisites]
+
+    - role: cupertino
+      tags: [cupertino]
+      when: "'cupertino' in mcp_servers_enabled"
+
+    - role: exa
+      tags: [exa]
+      when: "'exa' in mcp_servers_enabled"
+
+    - role: xcodebuildmcp
+      tags: [xcodebuildmcp]
+      when: "'xcodebuildmcp' in mcp_servers_enabled"
+
+    - role: context7
+      tags: [context7]
+      when: "'context7' in mcp_servers_enabled"
+
+    - role: swiftlens
+      tags: [swiftlens]
+      when: "'swiftlens' in mcp_servers_enabled"

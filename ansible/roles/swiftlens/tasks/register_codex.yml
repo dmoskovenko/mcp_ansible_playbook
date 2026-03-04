@@ -1,0 +1,12 @@
+---
+- name: Register SwiftLens MCP server with Codex
+  ansible.builtin.command:
+    argv:
+      - "{{ codex_cli_path }}"
+      - mcp
+      - add
+      - swiftlens
+      - --
+      - uvx
+      - "{{ swiftlens_uvx_package }}"
+  changed_when: true

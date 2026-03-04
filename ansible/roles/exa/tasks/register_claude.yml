@@ -1,0 +1,19 @@
+---
+- name: Register Exa MCP server with Claude
+  ansible.builtin.command:
+    argv:
+      - "{{ claude_cli_path }}"
+      - mcp
+      - add
+      - -s
+      - user
+      - -e
+      - "EXA_API_KEY={{ vault_exa_api_key }}"
+      - exa
+      - --
+      - npx
+      - -y
+      - "{{ exa_npx_package }}"
+      - "--tools={{ exa_tools | join(',') }}"
+  changed_when: true
+  no_log: true

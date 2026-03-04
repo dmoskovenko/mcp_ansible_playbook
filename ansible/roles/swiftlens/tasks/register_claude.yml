@@ -1,0 +1,15 @@
+---
+- name: Register SwiftLens MCP server with Claude
+  ansible.builtin.command:
+    argv:
+      - "{{ claude_cli_path }}"
+      - mcp
+      - add
+      - -s
+      - user
+      - -t
+      - stdio
+      - swiftlens
+      - uvx
+      - "{{ swiftlens_uvx_package }}"
+  changed_when: true

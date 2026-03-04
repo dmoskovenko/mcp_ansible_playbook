@@ -1,0 +1,32 @@
+---
+- name: Verify SwiftLens in Claude
+  ansible.builtin.command:
+    argv:
+      - "{{ claude_cli_path }}"
+      - mcp
+      - get
+      - swiftlens
+  changed_when: false
+  register: claude_swiftlens_verify
+  when: claude_cli_stat.stat.exists
+
+- name: Show Claude SwiftLens config
+  ansible.builtin.debug:
+    var: claude_swiftlens_verify.stdout_lines
+  when: claude_cli_stat.stat.exists
+
+- name: Verify SwiftLens in Codex
+  ansible.builtin.command:
+    argv:
+      - "{{ codex_cli_path }}"
+      - mcp
+      - get
+      - swiftlens
+  changed_when: false
+  register: codex_swiftlens_verify
+  when: codex_cli_stat.stat.exists
+
+- name: Show Codex SwiftLens config
+  ansible.builtin.debug:
+    var: codex_swiftlens_verify.stdout_lines
+  when: codex_cli_stat.stat.exists

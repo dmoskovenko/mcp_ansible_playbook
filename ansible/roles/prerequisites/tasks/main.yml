@@ -1,0 +1,6 @@
+---
+- name: Install Homebrew packages and casks
+  ansible.builtin.include_tasks: homebrew_packages.yml
+
+- name: Verify CLI tools and set facts
+  ansible.builtin.include_tasks: verify.yml

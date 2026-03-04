@@ -1,0 +1,11 @@
+---
+- name: Register SwiftLens with Claude
+  ansible.builtin.include_tasks: register_claude.yml
+  when: claude_cli_stat.stat.exists
+
+- name: Register SwiftLens with Codex
+  ansible.builtin.include_tasks: register_codex.yml
+  when: codex_cli_stat.stat.exists
+
+- name: Verify SwiftLens registration
+  ansible.builtin.include_tasks: verify.yml
