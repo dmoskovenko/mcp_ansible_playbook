@@ -1,0 +1,8 @@
+---
+- name: Install skills
+  ansible.builtin.include_tasks: run_install_script.yml
+  when: skills_state == "present"
+
+- name: Remove skills
+  ansible.builtin.include_tasks: run_uninstall_script.yml
+  when: skills_state == "absent"

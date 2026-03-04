@@ -1,0 +1,16 @@
+---
+- name: Verify Figma in Claude
+  ansible.builtin.command:
+    argv:
+      - "{{ claude_cli_path }}"
+      - mcp
+      - get
+      - figma
+  changed_when: false
+  register: claude_figma_verify
+  when: claude_cli_stat.stat.exists
+
+- name: Show Claude Figma config
+  ansible.builtin.debug:
+    var: claude_figma_verify.stdout_lines
+  when: claude_cli_stat.stat.exists

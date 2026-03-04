@@ -1,0 +1,11 @@
+---
+# State: "present" installs skills, "absent" removes them
+skills_state: present
+
+# Where skill repos are cloned
+skills_clone_root: >-
+  {{ ansible_facts['env']['XDG_DATA_HOME'] | default(ansible_facts['env']['HOME'] + '/.local/share') }}/agent-skills/repos
+
+# Symlink destinations
+skills_claude_dir: "{{ ansible_facts['env']['HOME'] }}/.claude/skills"
+skills_codex_dir: "{{ ansible_facts['env']['HOME'] }}/.codex/skills"

@@ -6,6 +6,10 @@ mcp_servers_enabled:
   - xcodebuildmcp
   - context7
   - swiftlens
+  - figma
+
+# Agent skills toggle
+skills_enabled: true
 
 # Cupertino — local Homebrew binary (stdio transport)
 cupertino_tap: mihaelamj/tap
@@ -37,3 +41,7 @@ context7_npx_package: "@upstash/context7-mcp"
 
 # SwiftLens — uvx-based server
 swiftlens_uvx_package: swiftlens
+
+# Figma — remote HTTP server (OAuth auth)
+figma_server_url: "https://mcp.figma.com/mcp"
+figma_transport: http

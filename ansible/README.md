@@ -1,6 +1,6 @@
 # MCP Server Ansible Playbook
 
-Ansible playbook that installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens) with Claude Code and Codex CLIs on macOS.
+Ansible playbook that installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens, Figma) with Claude Code and Codex CLIs on macOS.
 
 ## Prerequisites
 
@@ -65,6 +65,7 @@ ansible-playbook -i inventory/localhost.yml playbook.yml --tags exa --ask-vault-
 ansible-playbook -i inventory/localhost.yml playbook.yml --tags xcodebuildmcp --ask-vault-pass
 ansible-playbook -i inventory/localhost.yml playbook.yml --tags context7 --ask-vault-pass
 ansible-playbook -i inventory/localhost.yml playbook.yml --tags swiftlens --ask-vault-pass
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags figma
 ```
 
 ## Toggling Servers
@@ -78,7 +79,30 @@ mcp_servers_enabled:
   - xcodebuildmcp
   - context7
   - swiftlens
+  - figma
 ```
+
+## Skills
+
+The `skills` role is a thin wrapper that delegates to the root-level `install-skills.sh` and `uninstall-skills.sh` bash scripts, which clone external skill repositories, discover directories containing `SKILL.md` files, and create symlinks into `~/.claude/skills/` and `~/.codex/skills/`.
+
+**Install skills only:**
+```bash
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags skills
+```
+
+No `--ask-vault-pass` is needed for skills-only runs (no API keys required).
+
+**Uninstall skills:**
+```bash
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags skills -e skills_state=absent
+```
+
+This removes only managed symlinks (those pointing into the clone root) and cloned repos. Unrelated entries like `~/.codex/skills/.system` are preserved.
+
+**Disable skills in full runs:**
+
+Set `skills_enabled: false` in `group_vars/all/mcp_servers.yml`.
 
 ## Verification
 
@@ -90,6 +114,7 @@ claude mcp get exa
 claude mcp get xcodebuildmcp
 claude mcp get context7
 claude mcp get swiftlens
+claude mcp get figma
 codex mcp get cupertino
 codex mcp get exa
 codex mcp get xcodebuildmcp

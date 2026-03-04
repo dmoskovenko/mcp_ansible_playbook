@@ -1,0 +1,16 @@
+---
+- name: Run uninstall-skills.sh
+  ansible.builtin.command:
+    cmd: "{{ playbook_dir }}/../uninstall-skills.sh --yes"
+  environment:
+    SKILL_CLONE_ROOT: "{{ skills_clone_root }}"
+    CLAUDE_SKILLS_DIR: "{{ skills_claude_dir }}"
+    CODEX_SKILLS_DIR: "{{ skills_codex_dir }}"
+  register: uninstall_script_result
+  changed_when: >-
+    'Unlinked' in uninstall_script_result.stdout or
+    'Removed repo' in uninstall_script_result.stdout
+
+- name: Show uninstall-skills.sh output
+  ansible.builtin.debug:
+    msg: "{{ uninstall_script_result.stdout_lines }}"

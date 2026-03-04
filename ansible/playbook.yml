@@ -44,6 +44,10 @@
     - role: prerequisites
       tags: [prerequisites]
 
+    - role: skills
+      tags: [skills]
+      when: skills_enabled | default(true) | bool
+
     - role: cupertino
       tags: [cupertino]
       when: "'cupertino' in mcp_servers_enabled"
@@ -63,3 +67,7 @@
     - role: swiftlens
       tags: [swiftlens]
       when: "'swiftlens' in mcp_servers_enabled"
+
+    - role: figma
+      tags: [figma]
+      when: "'figma' in mcp_servers_enabled"

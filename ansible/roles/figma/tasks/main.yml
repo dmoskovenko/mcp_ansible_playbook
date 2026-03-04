@@ -1,0 +1,7 @@
+---
+- name: Register Figma with Claude
+  ansible.builtin.include_tasks: register_claude.yml
+  when: claude_cli_stat.stat.exists
+
+- name: Verify Figma registration
+  ansible.builtin.include_tasks: verify.yml

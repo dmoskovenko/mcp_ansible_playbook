@@ -4,42 +4,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Bash-based installer that manages external AI agent skill repositories for Claude and Codex editors. It clones skill repos, discovers skills (directories containing `SKILL.md` files), and symlinks them into `~/.claude/skills` and `~/.codex/skills`.
+Ansible playbook for bootstrapping AI-assisted development environments on macOS:
+
+- **Bash scripts** (`install-skills.sh`, `uninstall-skills.sh`) — clone external skill repositories, discover directories containing `SKILL.md` files, and symlink them into `~/.claude/skills` and `~/.codex/skills`.
+- **Skills role** — thin Ansible wrapper that delegates to the bash scripts above.
+- **MCP server roles** — installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens, Figma) with the Claude Code and Codex CLIs.
 
 ## Commands
 
 ```bash
-# Validate shell syntax (the only available "test" step)
-bash -n install-skills.sh
-bash -n uninstall-skills.sh
+# Syntax check
+cd ansible && ansible-playbook playbook.yml --syntax-check
 
-# Run installer (clones/updates repos, creates symlinks)
-./install-skills.sh
+# Dry run
+ansible-playbook -i inventory/localhost.yml playbook.yml --check --ask-vault-pass
 
-# Preview or execute uninstall
-./uninstall-skills.sh --dry-run
-./uninstall-skills.sh --yes
+# Full run
+ansible-playbook -i inventory/localhost.yml playbook.yml --ask-vault-pass
+
+# Single role
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags cupertino --ask-vault-pass
+
+# Skills only (no vault pass needed)
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags skills
+
+# Uninstall skills
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags skills -e skills_state=absent
 ```
 
 ## Architecture
 
-**`install-skills.sh`** — Sequential pipeline:
-1. Clone or update a hardcoded list of git repos into `${XDG_DATA_HOME:-$HOME/.local/share}/agent-skills/repos`
-2. Discover all `SKILL.md` files across cloned repos
-3. Build a TSV skill-name → directory mapping, validate for duplicates and destination conflicts
-4. Create/update symlinks in both `~/.claude/skills` and `~/.codex/skills`
+**`ansible/playbook.yml`** — Bootstraps AI development environments on macOS:
+- **Roles:** `prerequisites`, `skills`, `cupertino`, `exa`, `xcodebuildmcp`, `context7`, `swiftlens`, `figma`
+- **Skills role:** Thin wrapper that delegates to root-level `install-skills.sh` / `uninstall-skills.sh` bash scripts. Uninstall (`-e skills_state=absent`) removes only managed symlinks and repos.
+- **Config:** `group_vars/all/mcp_servers.yml` toggles which servers and skills are enabled; `vault.yml` stores API keys
+- macOS-only, idempotent, supports tag-based selective runs and `--check` dry-run mode
 
-**`uninstall-skills.sh`** — Conservative removal:
-- Only removes symlinks whose targets resolve to managed repo paths
-- Only removes repos whose git origin URL matches the expected list
-- Supports `--dry-run` and `--yes` flags; prompts for confirmation by default
-
-Both scripts use `set -euo pipefail`, readonly config variables, and trap-based temp file cleanup.
+See `ansible/README.md` for full playbook usage documentation.
 
 ## Conventions
 
-- POSIX-friendly bash with explicit variable names
 - Deterministic behavior: stable ordering, fail-fast on conflicts
-- Idempotent: both scripts are safe to re-run
-- Commit subjects use imperative mood with scope prefix (e.g., `installer: add duplicate detection`)
+- Idempotent: all playbooks and roles are safe to re-run
+- Commit subjects use imperative mood with scope prefix (e.g., `ansible: add Exa role`, `skills: add duplicate detection`)
 - PRs require manual validation notes (install, re-install for idempotency, dry-run, uninstall)
