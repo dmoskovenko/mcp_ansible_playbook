@@ -1,21 +1,17 @@
 # MCP server configuration
 # Toggle which servers to install
 mcp_servers_enabled:
-  - cupertino
   - exa
-  - xcodebuildmcp
-  - context7
-  - swiftlens
+  - firecrawl
+  - perplexity
   - figma
+  - context7
+  - xcodebuildmcp
+  - cupertino
+  - swiftlens
 
 # Agent skills toggle
 skills_enabled: true
-
-# Cupertino — local Homebrew binary (stdio transport)
-cupertino_tap: mihaelamj/tap
-cupertino_formula: cupertino
-cupertino_binary: cupertino
-cupertino_transport: stdio
 
 # CLI casks (installed by prerequisites role)
 claude_code_cask: claude-code
@@ -33,15 +29,27 @@ exa_tools:
   - deep_researcher_start
   - deep_researcher_check
 
-# XcodeBuildMCP — npx-based server
-xcodebuildmcp_npx_package: xcodebuildmcp@latest
+# Firecrawl — npx-based server
+firecrawl_npx_package: firecrawl-mcp
 
-# Context7 — npx-based server
-context7_npx_package: "@upstash/context7-mcp"
-
-# SwiftLens — uvx-based server
-swiftlens_uvx_package: swiftlens
+# Perplexity — npx-based server
+perplexity_npx_package: "@perplexity-ai/mcp-server"
 
 # Figma — remote HTTP server (OAuth auth)
 figma_server_url: "https://mcp.figma.com/mcp"
 figma_transport: http
+
+# Context7 — npx-based server
+context7_npx_package: "@upstash/context7-mcp"
+
+# XcodeBuildMCP — npx-based server
+xcodebuildmcp_npx_package: xcodebuildmcp@latest
+
+# Cupertino — local Homebrew binary (stdio transport)
+cupertino_tap: mihaelamj/tap
+cupertino_formula: cupertino
+cupertino_binary: cupertino
+cupertino_transport: stdio
+
+# SwiftLens — uvx-based server
+swiftlens_uvx_package: swiftlens

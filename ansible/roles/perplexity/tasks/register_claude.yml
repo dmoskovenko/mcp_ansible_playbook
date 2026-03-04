@@ -1,0 +1,18 @@
+---
+- name: Register Perplexity MCP server with Claude
+  ansible.builtin.command:
+    argv:
+      - "{{ claude_cli_path }}"
+      - mcp
+      - add
+      - -s
+      - user
+      - -e
+      - "PERPLEXITY_API_KEY={{ vault_perplexity_api_key }}"
+      - perplexity
+      - --
+      - npx
+      - -y
+      - "{{ perplexity_npx_package }}"
+  changed_when: true
+  no_log: true

@@ -24,8 +24,10 @@
   changed_when: false
   when: >-
     'exa' in mcp_servers_enabled or
-    'xcodebuildmcp' in mcp_servers_enabled or
-    'context7' in mcp_servers_enabled
+    'firecrawl' in mcp_servers_enabled or
+    'perplexity' in mcp_servers_enabled or
+    'context7' in mcp_servers_enabled or
+    'xcodebuildmcp' in mcp_servers_enabled
 
 - name: Verify uvx is available
   ansible.builtin.command: uvx --version

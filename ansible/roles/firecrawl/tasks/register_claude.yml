@@ -1,0 +1,18 @@
+---
+- name: Register Firecrawl MCP server with Claude
+  ansible.builtin.command:
+    argv:
+      - "{{ claude_cli_path }}"
+      - mcp
+      - add
+      - -s
+      - user
+      - -e
+      - "FIRECRAWL_API_KEY={{ vault_firecrawl_api_key }}"
+      - firecrawl
+      - --
+      - npx
+      - -y
+      - "{{ firecrawl_npx_package }}"
+  changed_when: true
+  no_log: true

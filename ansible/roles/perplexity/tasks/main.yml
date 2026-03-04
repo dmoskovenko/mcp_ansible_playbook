@@ -1,0 +1,11 @@
+---
+- name: Register Perplexity with Claude
+  ansible.builtin.include_tasks: register_claude.yml
+  when: claude_cli_stat.stat.exists
+
+- name: Register Perplexity with Codex
+  ansible.builtin.include_tasks: register_codex.yml
+  when: codex_cli_stat.stat.exists
+
+- name: Verify Perplexity registration
+  ansible.builtin.include_tasks: verify.yml

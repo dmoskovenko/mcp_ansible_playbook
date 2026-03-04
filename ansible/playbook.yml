@@ -48,26 +48,34 @@
       tags: [skills]
       when: skills_enabled | default(true) | bool
 
-    - role: cupertino
-      tags: [cupertino]
-      when: "'cupertino' in mcp_servers_enabled"
-
     - role: exa
       tags: [exa]
       when: "'exa' in mcp_servers_enabled"
 
-    - role: xcodebuildmcp
-      tags: [xcodebuildmcp]
-      when: "'xcodebuildmcp' in mcp_servers_enabled"
+    - role: firecrawl
+      tags: [firecrawl]
+      when: "'firecrawl' in mcp_servers_enabled"
+
+    - role: perplexity
+      tags: [perplexity]
+      when: "'perplexity' in mcp_servers_enabled"
+
+    - role: figma
+      tags: [figma]
+      when: "'figma' in mcp_servers_enabled"
 
     - role: context7
       tags: [context7]
       when: "'context7' in mcp_servers_enabled"
 
+    - role: xcodebuildmcp
+      tags: [xcodebuildmcp]
+      when: "'xcodebuildmcp' in mcp_servers_enabled"
+
+    - role: cupertino
+      tags: [cupertino]
+      when: "'cupertino' in mcp_servers_enabled"
+
     - role: swiftlens
       tags: [swiftlens]
       when: "'swiftlens' in mcp_servers_enabled"
-
-    - role: figma
-      tags: [figma]
-      when: "'figma' in mcp_servers_enabled"

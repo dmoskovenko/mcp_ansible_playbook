@@ -1,6 +1,6 @@
 # MCP Server Ansible Playbook
 
-Ansible playbook that installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens, Figma) with Claude Code and Codex CLIs on macOS.
+Ansible playbook that installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens, Figma, Firecrawl, Perplexity) with Claude Code and Codex CLIs on macOS.
 
 ## Prerequisites
 
@@ -23,6 +23,8 @@ The playbook installs Homebrew, Node.js, Claude Code, and Codex automatically �
    # Replace REPLACE_ME_THEN_ENCRYPT with your actual keys:
    #   vault_exa_api_key       — Exa search API key
    #   vault_context7_api_key  — Context7 API key
+   #   vault_firecrawl_api_key — Firecrawl API key
+   #   vault_perplexity_api_key — Perplexity API key
 
    # Encrypt the file
    ansible-vault encrypt group_vars/all/vault.yml
@@ -66,6 +68,8 @@ ansible-playbook -i inventory/localhost.yml playbook.yml --tags xcodebuildmcp --
 ansible-playbook -i inventory/localhost.yml playbook.yml --tags context7 --ask-vault-pass
 ansible-playbook -i inventory/localhost.yml playbook.yml --tags swiftlens --ask-vault-pass
 ansible-playbook -i inventory/localhost.yml playbook.yml --tags figma
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags firecrawl --ask-vault-pass
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags perplexity --ask-vault-pass
 ```
 
 ## Toggling Servers
@@ -80,6 +84,8 @@ mcp_servers_enabled:
   - context7
   - swiftlens
   - figma
+  - firecrawl
+  - perplexity
 ```
 
 ## Skills
@@ -115,11 +121,15 @@ claude mcp get xcodebuildmcp
 claude mcp get context7
 claude mcp get swiftlens
 claude mcp get figma
+claude mcp get firecrawl
+claude mcp get perplexity
 codex mcp get cupertino
 codex mcp get exa
 codex mcp get xcodebuildmcp
 codex mcp get context7
 codex mcp get swiftlens
+codex mcp get firecrawl
+codex mcp get perplexity
 ```
 
 ## Idempotency

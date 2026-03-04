@@ -5,8 +5,10 @@
     state: present
   when: >-
     'exa' in mcp_servers_enabled or
-    'xcodebuildmcp' in mcp_servers_enabled or
-    'context7' in mcp_servers_enabled
+    'firecrawl' in mcp_servers_enabled or
+    'perplexity' in mcp_servers_enabled or
+    'context7' in mcp_servers_enabled or
+    'xcodebuildmcp' in mcp_servers_enabled
 
 - name: Install Claude Code via Homebrew cask
   community.general.homebrew_cask:

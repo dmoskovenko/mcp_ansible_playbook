@@ -8,7 +8,7 @@ Ansible playbook for bootstrapping AI-assisted development environments on macOS
 
 - **Bash scripts** (`install-skills.sh`, `uninstall-skills.sh`) — clone external skill repositories, discover directories containing `SKILL.md` files, and symlink them into `~/.claude/skills` and `~/.codex/skills`.
 - **Skills role** — thin Ansible wrapper that delegates to the bash scripts above.
-- **MCP server roles** — installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens, Figma) with the Claude Code and Codex CLIs.
+- **MCP server roles** — installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens, Figma, Firecrawl, Perplexity) with the Claude Code and Codex CLIs.
 
 ## Commands
 
@@ -35,7 +35,7 @@ ansible-playbook -i inventory/localhost.yml playbook.yml --tags skills -e skills
 ## Architecture
 
 **`ansible/playbook.yml`** — Bootstraps AI development environments on macOS:
-- **Roles:** `prerequisites`, `skills`, `cupertino`, `exa`, `xcodebuildmcp`, `context7`, `swiftlens`, `figma`
+- **Roles:** `prerequisites`, `skills`, `cupertino`, `exa`, `xcodebuildmcp`, `context7`, `swiftlens`, `figma`, `firecrawl`, `perplexity`
 - **Skills role:** Thin wrapper that delegates to root-level `install-skills.sh` / `uninstall-skills.sh` bash scripts. Uninstall (`-e skills_state=absent`) removes only managed symlinks and repos.
 - **Config:** `group_vars/all/mcp_servers.yml` toggles which servers and skills are enabled; `vault.yml` stores API keys
 - macOS-only, idempotent, supports tag-based selective runs and `--check` dry-run mode
