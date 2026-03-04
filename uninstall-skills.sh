@@ -15,12 +15,12 @@ readonly REPO_NAMES=(
 )
 
 readonly REPO_URLS=(
-  "https://github.com/AvdLee/Core-Data-Agent-Skill.git"
-  "https://github.com/Dimillian/Skills.git"
-  "https://github.com/AvdLee/Swift-Concurrency-Agent-Skill.git"
-  "https://github.com/AvdLee/Swift-Testing-Agent-Skill.git"
-  "https://github.com/AvdLee/SwiftUI-Agent-Skill.git"
-  "https://github.com/glittercowboy/taches-cc-resources.git"
+  "git@github.com:AvdLee/Core-Data-Agent-Skill.git"
+  "git@github.com:Dimillian/Skills.git"
+  "git@github.com:AvdLee/Swift-Concurrency-Agent-Skill.git"
+  "git@github.com:AvdLee/Swift-Testing-Agent-Skill.git"
+  "git@github.com:AvdLee/SwiftUI-Agent-Skill.git"
+  "git@github.com:glittercowboy/taches-cc-resources.git"
 )
 
 log() {
@@ -65,6 +65,14 @@ check_requirements() {
   for required_cmd in find readlink git rm mktemp wc sed dirname; do
     command -v "$required_cmd" >/dev/null 2>&1 || die "Missing required command: $required_cmd"
   done
+}
+
+normalize_github_url() {
+  local url="$1"
+  url="${url%.git}"
+  url="${url#https://github.com/}"
+  url="${url#git@github.com:}"
+  printf '%s' "$url"
 }
 
 is_repo_managed_target() {
@@ -146,7 +154,8 @@ collect_repo_removals() {
       continue
     fi
 
-    if [[ "$current_origin" != "$expected_origin" ]]; then
+    if [[ "$current_origin" != "$expected_origin" ]] && \
+       [[ "$(normalize_github_url "$current_origin")" != "$(normalize_github_url "$expected_origin")" ]]; then
       log "Skipping repo with origin mismatch (left untouched): $repo_path"
       log "  expected: $expected_origin"
       log "  actual:   $current_origin"

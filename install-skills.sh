@@ -6,12 +6,12 @@ readonly CLAUDE_SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 readonly CODEX_SKILLS_DIR="${CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
 
 readonly REPOS=(
-  "https://github.com/AvdLee/Core-Data-Agent-Skill.git"
-  "https://github.com/Dimillian/Skills.git"
-  "https://github.com/AvdLee/Swift-Concurrency-Agent-Skill.git"
-  "https://github.com/AvdLee/Swift-Testing-Agent-Skill.git"
-  "https://github.com/AvdLee/SwiftUI-Agent-Skill.git"
-  "https://github.com/glittercowboy/taches-cc-resources.git"
+  "git@github.com:AvdLee/Core-Data-Agent-Skill.git"
+  "git@github.com:Dimillian/Skills.git"
+  "git@github.com:AvdLee/Swift-Concurrency-Agent-Skill.git"
+  "git@github.com:AvdLee/Swift-Testing-Agent-Skill.git"
+  "git@github.com:AvdLee/SwiftUI-Agent-Skill.git"
+  "git@github.com:glittercowboy/taches-cc-resources.git"
 )
 
 log() {
@@ -46,7 +46,7 @@ repo_dir_name() {
 
 check_requirements() {
   local required_cmd
-  for required_cmd in git find sort ln awk cut uniq mktemp wc sed dirname basename tr; do
+  for required_cmd in git ssh find sort ln awk cut uniq mktemp wc sed dirname basename tr; do
     command -v "$required_cmd" >/dev/null 2>&1 || die "Missing required command: $required_cmd"
   done
 }
@@ -65,6 +65,14 @@ cleanup_workspace() {
   [[ -n "${tmp_dir:-}" ]] && rm -rf "$tmp_dir"
 }
 
+normalize_github_url() {
+  local url="$1"
+  url="${url%.git}"
+  url="${url#https://github.com/}"
+  url="${url#git@github.com:}"
+  printf '%s' "$url"
+}
+
 clone_or_update_repo() {
   local repo_url="$1"
   local repo_name
@@ -77,7 +85,15 @@ clone_or_update_repo() {
   if [[ -d "$repo_path/.git" ]]; then
     current_origin="$(git -C "$repo_path" remote get-url origin 2>/dev/null || true)"
     [[ -n "$current_origin" ]] || die "Repository at '$repo_path' has no origin remote"
-    [[ "$current_origin" == "$repo_url" ]] || die "Origin mismatch for '$repo_path': expected '$repo_url', got '$current_origin'"
+
+    if [[ "$current_origin" != "$repo_url" ]]; then
+      if [[ "$(normalize_github_url "$current_origin")" == "$(normalize_github_url "$repo_url")" ]]; then
+        log "Migrating remote origin for '$repo_name': $current_origin -> $repo_url"
+        git -C "$repo_path" remote set-url origin "$repo_url"
+      else
+        die "Origin mismatch for '$repo_path': expected '$repo_url', got '$current_origin'"
+      fi
+    fi
 
     log "Updating $repo_url"
     git -C "$repo_path" fetch --prune origin
