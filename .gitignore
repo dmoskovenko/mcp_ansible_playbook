@@ -1,0 +1,4 @@
+.claude/
+ansible/.vault_pass
+ansible/*.retry
+ansible/vars/vault.yml
