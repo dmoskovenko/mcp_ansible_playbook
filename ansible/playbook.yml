@@ -4,41 +4,44 @@
   gather_facts: true
 
   pre_tasks:
-    - name: Assert running on macOS
-      ansible.builtin.assert:
-        that: ansible_os_family == "Darwin"
-        fail_msg: "This playbook only supports macOS."
+    - name: Bootstrap Homebrew and set path facts
+      tags: [always]
+      block:
+        - name: Assert running on macOS
+          ansible.builtin.assert:
+            that: ansible_facts['os_family'] == "Darwin"
+            fail_msg: "This playbook only supports macOS."
 
-    - name: Check for Homebrew (Apple Silicon path)
-      ansible.builtin.stat:
-        path: /opt/homebrew/bin/brew
-      register: brew_apple_silicon
+        - name: Check for Homebrew (Apple Silicon path)
+          ansible.builtin.stat:
+            path: /opt/homebrew/bin/brew
+          register: brew_apple_silicon
 
-    - name: Check for Homebrew (Intel path)
-      ansible.builtin.stat:
-        path: /usr/local/bin/brew
-      register: brew_intel
+        - name: Check for Homebrew (Intel path)
+          ansible.builtin.stat:
+            path: /usr/local/bin/brew
+          register: brew_intel
 
-    - name: Install Homebrew if missing
-      ansible.builtin.shell: |
-        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      args:
-        creates: "{{ '/opt/homebrew/bin/brew' if ansible_machine == 'arm64' else '/usr/local/bin/brew' }}"
-      when: not brew_apple_silicon.stat.exists and not brew_intel.stat.exists
+        - name: Install Homebrew if missing
+          ansible.builtin.shell: |
+            NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          args:
+            creates: "{{ '/opt/homebrew/bin/brew' if ansible_facts['machine'] == 'arm64' else '/usr/local/bin/brew' }}"
+          when: not brew_apple_silicon.stat.exists and not brew_intel.stat.exists
 
-    - name: Detect Homebrew prefix
-      ansible.builtin.command: brew --prefix
-      changed_when: false
-      register: brew_prefix_result
+        - name: Detect Homebrew prefix
+          ansible.builtin.command: brew --prefix
+          changed_when: false
+          register: brew_prefix_result
 
-    - name: Set Homebrew prefix fact
-      ansible.builtin.set_fact:
-        homebrew_prefix: "{{ brew_prefix_result.stdout }}"
+        - name: Set Homebrew prefix fact
+          ansible.builtin.set_fact:
+            homebrew_prefix: "{{ brew_prefix_result.stdout }}"
 
-    - name: Set CLI path facts
-      ansible.builtin.set_fact:
-        claude_cli_path: "{{ homebrew_prefix }}/bin/claude"
-        codex_cli_path: "{{ homebrew_prefix }}/bin/codex"
+        - name: Set CLI path facts
+          ansible.builtin.set_fact:
+            claude_cli_path: "{{ homebrew_prefix }}/bin/claude"
+            codex_cli_path: "{{ homebrew_prefix }}/bin/codex"
 
   roles:
     - role: prerequisites
@@ -57,11 +60,6 @@
       tags: [firecrawl, mcp]
       vars: { mcp_server: "{{ mcp_servers.firecrawl }}" }
       when: "'firecrawl' in mcp_servers_enabled"
-
-    - role: mcp
-      tags: [perplexity, mcp]
-      vars: { mcp_server: "{{ mcp_servers.perplexity }}" }
-      when: "'perplexity' in mcp_servers_enabled"
 
     - role: mcp
       tags: [figma, mcp]

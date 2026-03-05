@@ -1,6 +1,6 @@
 # MCP Server Ansible Playbook
 
-Ansible playbook that installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens, Figma, Firecrawl, Perplexity) with Claude Code and Codex CLIs on macOS.
+Ansible playbook that installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens, Figma, Firecrawl) with Claude Code and Codex CLIs on macOS.
 
 ## Prerequisites
 
@@ -25,15 +25,13 @@ Skill repositories are also configured in the same vars file and passed to the s
    ```bash
    cd ansible
    # Edit the plaintext template
-   vi group_vars/all/vault.yml
+   vi vars/vault.yml
    # Replace REPLACE_ME_THEN_ENCRYPT with your actual keys:
    #   vault_exa_api_key       — Exa search API key
    #   vault_context7_api_key  — Context7 API key
    #   vault_firecrawl_api_key — Firecrawl API key
-   #   vault_perplexity_api_key — Perplexity API key
-
    # Encrypt the file
-   ansible-vault encrypt group_vars/all/vault.yml
+   ansible-vault encrypt vars/vault.yml
    ```
 
 2. Optionally create a vault password file (gitignored):
@@ -53,28 +51,33 @@ ansible-playbook playbook.yml --syntax-check
 
 **Dry run (check mode):**
 ```bash
-ansible-playbook -i inventory/localhost.yml playbook.yml --check --ask-vault-pass
+ansible-playbook -i inventory/localhost.yml playbook.yml --check -e @vars/vault.yml --ask-vault-pass
 ```
 
 **Full run:**
 ```bash
-ansible-playbook -i inventory/localhost.yml playbook.yml --ask-vault-pass
+ansible-playbook -i inventory/localhost.yml playbook.yml -e @vars/vault.yml --ask-vault-pass
 ```
 
 **With vault password file:**
 ```bash
-ansible-playbook -i inventory/localhost.yml playbook.yml --vault-password-file .vault_pass
+ansible-playbook -i inventory/localhost.yml playbook.yml -e @vars/vault.yml --vault-password-file .vault_pass
 ```
 
-**Run a single server via tags:**
+**Run a single server via tags (no secrets needed):**
 ```bash
-ansible-playbook -i inventory/localhost.yml playbook.yml --tags cupertino --ask-vault-pass
-ansible-playbook -i inventory/localhost.yml playbook.yml --tags exa --ask-vault-pass
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags cupertino
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags swiftlens
+```
+
+**Run a single server via tags (secrets needed):**
+```bash
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags exa -e @vars/vault.yml --ask-vault-pass
 ```
 
 **Run all MCP servers (skip skills):**
 ```bash
-ansible-playbook -i inventory/localhost.yml playbook.yml --tags mcp --ask-vault-pass
+ansible-playbook -i inventory/localhost.yml playbook.yml --tags mcp -e @vars/vault.yml --ask-vault-pass
 ```
 
 ## Toggling Servers
@@ -90,7 +93,6 @@ mcp_servers_enabled:
   - swiftlens
   - figma
   - firecrawl
-  - perplexity
 ```
 
 Node.js and uv prerequisites are installed automatically based on which server runners (npx/uvx) are enabled.
@@ -129,14 +131,12 @@ claude mcp get context7
 claude mcp get swiftlens
 claude mcp get figma
 claude mcp get firecrawl
-claude mcp get perplexity
 codex mcp get cupertino
 codex mcp get exa
 codex mcp get xcodebuildmcp
 codex mcp get context7
 codex mcp get swiftlens
 codex mcp get firecrawl
-codex mcp get perplexity
 ```
 
 ## Idempotency

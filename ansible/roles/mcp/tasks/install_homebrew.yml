@@ -14,3 +14,4 @@
     path: "{{ homebrew_prefix }}/bin/{{ mcp_server.homebrew.binary }}"
   register: homebrew_binary_stat
   failed_when: not homebrew_binary_stat.stat.exists
+  when: not ansible_check_mode

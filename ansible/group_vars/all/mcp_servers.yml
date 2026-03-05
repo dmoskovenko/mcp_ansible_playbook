@@ -3,7 +3,6 @@
 mcp_servers_enabled:
   - exa
   - firecrawl
-  - perplexity
   - figma
   - context7
   - cupertino
@@ -46,7 +45,7 @@ mcp_servers:
     runner: npx
     env:
       key: EXA_API_KEY
-      value: "{{ vault_exa_api_key }}"
+      value: "{{ vault_exa_api_key | default('') }}"
     command:
       - npx
       - -y
@@ -61,22 +60,11 @@ mcp_servers:
     runner: npx
     env:
       key: FIRECRAWL_API_KEY
-      value: "{{ vault_firecrawl_api_key }}"
+      value: "{{ vault_firecrawl_api_key | default('') }}"
     command:
       - npx
       - -y
       - firecrawl-mcp
-
-  perplexity:
-    name: perplexity
-    runner: npx
-    env:
-      key: PERPLEXITY_API_KEY
-      value: "{{ vault_perplexity_api_key }}"
-    command:
-      - npx
-      - -y
-      - "@perplexity-ai/mcp-server"
 
   figma:
     name: figma
@@ -90,7 +78,7 @@ mcp_servers:
     runner: npx
     env:
       key: CONTEXT7_API_KEY
-      value: "{{ vault_context7_api_key }}"
+      value: "{{ vault_context7_api_key | default('') }}"
     command:
       - npx
       - -y
@@ -113,6 +101,8 @@ mcp_servers:
     transport: stdio
     command:
       - uvx
+      - --python
+      - "3.13"
       - swiftlens
 
   xcodebuildmcp:

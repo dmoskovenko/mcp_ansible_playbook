@@ -1,4 +1,13 @@
 ---
+- name: "Validate {{ mcp_server.name }} API key is set"
+  ansible.builtin.assert:
+    that:
+      - mcp_server.env.value | length > 0
+    fail_msg: >-
+      {{ mcp_server.name }} requires {{ mcp_server.env.key }} but it is empty.
+      Load the vault: -e @vars/vault.yml --ask-vault-pass
+  when: mcp_server.env is defined
+
 - name: "Install {{ mcp_server.name }} via Homebrew"
   ansible.builtin.include_tasks: install_homebrew.yml
   when: mcp_server.homebrew is defined

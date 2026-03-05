@@ -5,10 +5,21 @@
       {{
         [claude_cli_path, 'mcp', 'add', '-s', 'user']
         + (['-t', mcp_server.transport] if mcp_server.transport is defined else [])
-        + (['-e', mcp_server.env.key + '=' + mcp_server.env.value] if mcp_server.env is defined else [])
+        + (['--env=' + mcp_server.env.key + '=' + mcp_server.env.value] if mcp_server.env is defined else [])
         + [mcp_server.name]
         + ([mcp_server.url] if mcp_server.url is defined else [])
         + (['--'] + mcp_server.command + (mcp_server.claude_extra_args | default([])) if mcp_server.command is defined else [])
       }}
   changed_when: false
   no_log: "{{ mcp_server.env is defined }}"
+  register: claude_register_result
+  failed_when: false
+
+- name: "Fail with redacted error if {{ mcp_server.name }} Claude registration failed"
+  ansible.builtin.fail:
+    msg: >-
+      'claude mcp add' for {{ mcp_server.name }} exited {{ claude_register_result.rc }}.
+      stderr: {{ claude_register_result.stderr | default('(none)') }}
+  when:
+    - claude_register_result.rc != 0
+    - "'already exists' not in claude_register_result.stderr | default('')"

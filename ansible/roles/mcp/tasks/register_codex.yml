@@ -4,10 +4,21 @@
     argv: >-
       {{
         [codex_cli_path, 'mcp', 'add', mcp_server.name]
-        + (['--env', mcp_server.env.key + '=' + mcp_server.env.value] if mcp_server.env is defined else [])
+        + (['--env=' + mcp_server.env.key + '=' + mcp_server.env.value] if mcp_server.env is defined else [])
         + ['--']
         + mcp_server.command
         + (mcp_server.codex_extra_args | default([]))
       }}
   changed_when: false
   no_log: "{{ mcp_server.env is defined }}"
+  register: codex_register_result
+  failed_when: false
+
+- name: "Fail with redacted error if {{ mcp_server.name }} Codex registration failed"
+  ansible.builtin.fail:
+    msg: >-
+      'codex mcp add' for {{ mcp_server.name }} exited {{ codex_register_result.rc }}.
+      stderr: {{ codex_register_result.stderr | default('(none)') }}
+  when:
+    - codex_register_result.rc != 0
+    - "'already exists' not in codex_register_result.stderr | default('')"
