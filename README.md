@@ -17,7 +17,7 @@ The playbook installs Homebrew, Node.js, Claude Code, and Codex automatically â€
 
 All MCP servers are defined as structured entries in `group_vars/all/mcp_servers.yml`. A single parameterized `mcp` role handles installation, registration with both CLIs, and verification for every server type (npx, uvx, binary, http). Adding a new server requires only a new entry in the config dict and an entry in `playbook.yml` â€” no new role files.
 
-Skill repositories are also configured in the same vars file and passed to the shell scripts via the `SKILL_REPOS` environment variable.
+Skill repositories are configured in `group_vars/all/skills.yml` and passed to the shell scripts via the `SKILL_REPOS` environment variable.
 
 ## Vault Setup
 
@@ -99,7 +99,7 @@ Node.js and uv prerequisites are installed automatically based on which server r
 
 ## Skills
 
-The `skills` role delegates to `install-skills.sh` and `uninstall-skills.sh` in `roles/skills/files/`. Skill repositories are defined in `group_vars/all/mcp_servers.yml` under `skill_repos` and passed to the scripts via the `SKILL_REPOS` environment variable.
+The `skills` role delegates to `install-skills.sh` and `uninstall-skills.sh` in `roles/skills/files/`. Skill repositories are defined in `group_vars/all/skills.yml` under `skill_repos` and passed to the scripts via the `SKILL_REPOS` environment variable.
 
 **Install skills only:**
 ```bash
@@ -117,7 +117,7 @@ This removes only managed symlinks (those pointing into the clone root) and clon
 
 **Disable skills in full runs:**
 
-Set `skills_enabled: false` in `group_vars/all/mcp_servers.yml`.
+Set `skills_enabled: false` in `group_vars/all/skills.yml`.
 
 ## Verification
 

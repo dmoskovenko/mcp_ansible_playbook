@@ -1,0 +1,12 @@
+# Agent skills configuration
+# Toggle skill installation in full playbook runs
+skills_enabled: true
+
+# Skill repositories to clone and symlink
+skill_repos:
+  - git@github.com:AvdLee/Core-Data-Agent-Skill.git
+  - git@github.com:Dimillian/Skills.git
+  - git@github.com:AvdLee/Swift-Concurrency-Agent-Skill.git
+  - git@github.com:AvdLee/Swift-Testing-Agent-Skill.git
+  - git@github.com:AvdLee/SwiftUI-Agent-Skill.git
+  - git@github.com:glittercowboy/taches-cc-resources.git

@@ -1,4 +1,4 @@
-# MCP server configuration
+# MCP server and CLI configuration
 # Toggle which servers to install
 mcp_servers_enabled:
   - exa
@@ -8,18 +8,6 @@ mcp_servers_enabled:
   - cupertino
   - swiftlens
   - xcodebuildmcp
-
-# Agent skills toggle
-skills_enabled: true
-
-# Skill repositories to clone and symlink
-skill_repos:
-  - git@github.com:AvdLee/Core-Data-Agent-Skill.git
-  - git@github.com:Dimillian/Skills.git
-  - git@github.com:AvdLee/Swift-Concurrency-Agent-Skill.git
-  - git@github.com:AvdLee/Swift-Testing-Agent-Skill.git
-  - git@github.com:AvdLee/SwiftUI-Agent-Skill.git
-  - git@github.com:glittercowboy/taches-cc-resources.git
 
 # CLI casks (installed by prerequisites role)
 claude_code_cask: claude-code

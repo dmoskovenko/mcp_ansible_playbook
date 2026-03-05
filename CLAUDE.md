@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Ansible playbook for bootstrapping AI-assisted development environments on macOS:
 
-- **Skills role** — clones external skill repositories, discovers directories containing `SKILL.md` files, and symlinks them into `~/.claude/skills` and `~/.codex/skills`. Bash scripts live in `ansible/roles/skills/files/`. Repo list is configured in `group_vars/all/mcp_servers.yml` and passed via the `SKILL_REPOS` env var.
+- **Skills role** — clones external skill repositories, discovers directories containing `SKILL.md` files, and symlinks them into `~/.claude/skills` and `~/.codex/skills`. Bash scripts live in `ansible/roles/skills/files/`. Repo list is configured in `group_vars/all/skills.yml` and passed via the `SKILL_REPOS` env var.
 - **MCP role** — a single parameterized role that installs and registers all MCP servers (Exa, Firecrawl, Figma, Context7, Cupertino, SwiftLens, XcodeBuildMCP) with the Claude Code and Codex CLIs. Server definitions live in `mcp_servers` dict in `group_vars/all/mcp_servers.yml`.
 
 ## Commands
@@ -43,7 +43,7 @@ ansible-playbook -i inventory/localhost.yml playbook.yml --tags skills -e skills
 - **Roles:** `prerequisites`, `skills`, `mcp` (parameterized, invoked once per server)
 - **MCP role:** A single role with tasks for Homebrew install, Claude/Codex registration, and verification. Server config is passed via the `mcp_server` variable from the structured `mcp_servers` dict.
 - **Skills role:** Delegates to `install-skills.sh` / `uninstall-skills.sh` in `roles/skills/files/`. Uninstall (`-e skills_state=absent`) removes only managed symlinks and repos.
-- **Config:** `group_vars/all/mcp_servers.yml` defines server structures, toggles, and skill repos; `vars/vault.yml` stores API keys (loaded explicitly via `-e @vars/vault.yml`)
+- **Config:** `group_vars/all/mcp_servers.yml` (server definitions, toggles, CLI casks), `group_vars/all/skills.yml` (skill repos and toggle); `vars/vault.yml` stores API keys (loaded explicitly via `-e @vars/vault.yml`)
 - **Prerequisites:** Node.js and uv installs are derived from `mcp_servers` runner types — no hardcoded server lists
 - macOS-only, idempotent, supports tag-based selective runs and `--check` dry-run mode
 
