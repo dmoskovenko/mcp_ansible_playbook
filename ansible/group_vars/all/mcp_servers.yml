@@ -8,6 +8,7 @@ mcp_servers_enabled:
   - cupertino
   - swiftlens
   - xcodebuildmcp
+  - parallel
 
 # CLI casks (installed by prerequisites role)
 claude_code_cask: claude-code
@@ -101,3 +102,17 @@ mcp_servers:
       - -y
       - xcodebuildmcp@latest
       - mcp
+
+  parallel:
+    name: parallel
+    runner: npx
+    env:
+      key: PARALLEL_API_KEY
+      value: "{{ vault_parallel_api_key | default('') }}"
+    command:
+      - npx
+      - -y
+      - mcp-remote
+      - https://search-mcp.parallel.ai/mcp
+      - --header
+      - "authorization: Bearer {{ vault_parallel_api_key | default('') }}"

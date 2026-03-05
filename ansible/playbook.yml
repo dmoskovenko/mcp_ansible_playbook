@@ -86,6 +86,11 @@
       vars: { mcp_server: "{{ mcp_servers.xcodebuildmcp }}" }
       when: "'xcodebuildmcp' in mcp_servers_enabled"
 
+    - role: mcp
+      tags: [parallel, mcp]
+      vars: { mcp_server: "{{ mcp_servers.parallel }}" }
+      when: "'parallel' in mcp_servers_enabled"
+
   post_tasks:
     - name: Show registered MCP servers summary
       ansible.builtin.debug:

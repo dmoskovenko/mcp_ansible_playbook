@@ -1,6 +1,6 @@
 # MCP Server Ansible Playbook
 
-Ansible playbook that installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens, Figma, Firecrawl) with Claude Code and Codex CLIs on macOS.
+Ansible playbook that installs and registers MCP servers (Cupertino, Exa, XcodeBuildMCP, Context7, SwiftLens, Figma, Firecrawl, Parallel) with Claude Code and Codex CLIs on macOS.
 
 ## Prerequisites
 
@@ -30,6 +30,7 @@ Skill repositories are configured in `group_vars/all/skills.yml` and passed to t
    #   vault_exa_api_key       — Exa search API key
    #   vault_context7_api_key  — Context7 API key
    #   vault_firecrawl_api_key — Firecrawl API key
+   #   vault_parallel_api_key  — Parallel Search API key
    # Encrypt the file
    ansible-vault encrypt vars/vault.yml
    ```
@@ -93,6 +94,7 @@ mcp_servers_enabled:
   - swiftlens
   - figma
   - firecrawl
+  - parallel
 ```
 
 Node.js and uv prerequisites are installed automatically based on which server runners (npx/uvx) are enabled.
@@ -131,12 +133,14 @@ claude mcp get context7
 claude mcp get swiftlens
 claude mcp get figma
 claude mcp get firecrawl
+claude mcp get parallel
 codex mcp get cupertino
 codex mcp get exa
 codex mcp get xcodebuildmcp
 codex mcp get context7
 codex mcp get swiftlens
 codex mcp get firecrawl
+codex mcp get parallel
 ```
 
 ## Idempotency

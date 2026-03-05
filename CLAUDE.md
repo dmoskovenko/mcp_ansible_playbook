@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Ansible playbook for bootstrapping AI-assisted development environments on macOS:
 
 - **Skills role** — clones external skill repositories, discovers directories containing `SKILL.md` files, and symlinks them into `~/.claude/skills` and `~/.codex/skills`. Bash scripts live in `ansible/roles/skills/files/`. Repo list is configured in `group_vars/all/skills.yml` and passed via the `SKILL_REPOS` env var.
-- **MCP role** — a single parameterized role that installs and registers all MCP servers (Exa, Firecrawl, Figma, Context7, Cupertino, SwiftLens, XcodeBuildMCP) with the Claude Code and Codex CLIs. Server definitions live in `mcp_servers` dict in `group_vars/all/mcp_servers.yml`.
+- **MCP role** — a single parameterized role that installs and registers all MCP servers (Exa, Firecrawl, Figma, Context7, Cupertino, SwiftLens, XcodeBuildMCP, Parallel) with the Claude Code and Codex CLIs. Server definitions live in `mcp_servers` dict in `group_vars/all/mcp_servers.yml`.
 
 ## Commands
 
